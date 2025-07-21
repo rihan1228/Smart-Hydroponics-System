@@ -1,0 +1,288 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <ThingSpeak.h>
+#include <DHT.h>
+#include <Preferences.h>
+#include <WebServer.h>
+#include <HTTPClient.h>
+
+#define DHTPIN 27
+#define DHTTYPE DHT11
+#define WATER_TANK_LEVEL_SENSOR 12
+#define NUTRIENT_TANK_LEVEL_SENSOR 13
+#define MIX_TANK_LEVEL_SENSOR 14
+#define WATER_LED 15
+#define NUTRIENT_LED 4
+#define MIX_LED 2
+#define WATER_PUMP_RELAY 18
+#define NUTRIENT_PUMP_RELAY 19
+#define MIX_PUMP_RELAY 21
+#define PH_SENSOR 34
+#define TDS_SENSOR 35
+#define PH_TEMP_SENSOR 33
+
+#define SENSOR_READ_DELAY 20
+#define UPDATE_INTERVAL 20000
+
+DHT dht(DHTPIN, DHTTYPE);
+WiFiClient client;
+Preferences prefs;
+WebServer server(80);
+
+unsigned long lastUpdateTime = 0;
+
+struct Config {
+  char wifi_ssid[32] = "F1";
+  char wifi_password[64] = "123456789";
+  unsigned long thingspeak_channel = 2914946;
+  char thingspeak_api_key[32] = "WSDQYJYL1OCYSCUU";
+  float ph_calibration = 1.0;
+  float tds_calibration = 1.0;
+} config;
+
+struct SensorReadings {
+  bool water_level;
+  bool nutrient_level;
+  bool mix_level;
+  float temperature;
+  float humidity;
+  float ph;
+  float tds;
+  float ph_temp;
+} readings;
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  pinMode(WATER_TANK_LEVEL_SENSOR, INPUT_PULLUP);
+  pinMode(NUTRIENT_TANK_LEVEL_SENSOR, INPUT_PULLUP);
+  pinMode(MIX_TANK_LEVEL_SENSOR, INPUT_PULLUP);
+
+  pinMode(WATER_LED, OUTPUT);
+  pinMode(NUTRIENT_LED, OUTPUT);
+  pinMode(MIX_LED, OUTPUT);
+
+  pinMode(WATER_PUMP_RELAY, OUTPUT);
+  pinMode(NUTRIENT_PUMP_RELAY, OUTPUT);
+  pinMode(MIX_PUMP_RELAY, OUTPUT);
+
+  digitalWrite(WATER_PUMP_RELAY, LOW);
+  digitalWrite(NUTRIENT_PUMP_RELAY, LOW);
+  digitalWrite(MIX_PUMP_RELAY, LOW);
+
+  loadConfig();
+  connectWiFi();
+
+  ThingSpeak.begin(client);
+  setupWebServer();
+
+  Serial.println("\nHydroponics System Ready");
+}
+
+void loop() {
+  if (millis() - lastUpdateTime > UPDATE_INTERVAL) {
+    updateSystem();
+    lastUpdateTime = millis();
+  }
+  server.handleClient();
+}
+
+void updateSystem() {
+  readSensors();
+  updateIndicators();
+  controlPumps();
+  logData();
+  sendToCloud();
+  showTips();
+  sendAlertsIfNeeded();
+}
+
+void readSensors() {
+  readings.water_level = digitalRead(WATER_TANK_LEVEL_SENSOR);
+  readings.nutrient_level = digitalRead(NUTRIENT_TANK_LEVEL_SENSOR);
+  readings.mix_level = digitalRead(MIX_TANK_LEVEL_SENSOR);
+
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  if (!isnan(t)) readings.temperature = t;
+  if (!isnan(h)) readings.humidity = h;
+
+  int rawPH = readAverageAnalog(PH_SENSOR);
+  float voltagePH = rawPH * (3.3 / 4095.0);
+  float pH = 7 + ((2.5 - voltagePH) / 0.18);
+  readings.ph = constrain(pH * config.ph_calibration, 0, 14);
+
+  int rawTemp = readAverageAnalog(PH_TEMP_SENSOR);
+  float voltageTemp = rawTemp * (3.3 / 4095.0);
+  readings.ph_temp = (voltageTemp - 0.5) * 100.0;
+
+  int rawTDS = readAverageAnalog(TDS_SENSOR);
+  float voltageTDS = rawTDS * (3.3 / 4095.0);
+  float ec = voltageTDS * 133.33;
+  float tds = ec * 0.5;
+  readings.tds = tds * config.tds_calibration;
+}
+
+float readAverageAnalog(int pin) {
+  float sum = 0;
+  for (int i = 0; i < 10; i++) {
+    sum += analogRead(pin);
+    delay(SENSOR_READ_DELAY);
+  }
+  return sum / 10.0;
+}
+
+void updateIndicators() {
+  digitalWrite(WATER_LED, !readings.water_level);
+  digitalWrite(NUTRIENT_LED, !readings.nutrient_level);
+  digitalWrite(MIX_LED, !readings.mix_level);
+}
+
+void controlPumps() {
+  if (!readings.water_level || !readings.nutrient_level) {
+    Serial.println("Step 5: Please refill water and/or nutrient tank.");
+    return;
+  }
+
+  while (!readings.mix_level) {
+    if (readings.water_level && readings.nutrient_level) {
+      Serial.println("Step 2: Refilling mix tank...");
+      digitalWrite(WATER_PUMP_RELAY, HIGH); delay(2000); digitalWrite(WATER_PUMP_RELAY, LOW);
+      digitalWrite(NUTRIENT_PUMP_RELAY, HIGH); delay(500); digitalWrite(NUTRIENT_PUMP_RELAY, LOW);
+    } else {
+      Serial.println("Step 5: Please refill water and/or nutrient tank.");
+      break;
+    }
+    readings.mix_level = digitalRead(MIX_TANK_LEVEL_SENSOR);
+  }
+
+  if (readings.mix_level) {
+    Serial.println("Step 4: Mix tank is full. Activating mix pump...");
+    digitalWrite(MIX_PUMP_RELAY, HIGH); delay(2000); digitalWrite(MIX_PUMP_RELAY, LOW);
+  }
+}
+
+void logData() {
+  Serial.println("\n=== System Status ===");
+  Serial.printf("Tanks: Water-%s | Nutrient-%s | Mix-%s\n", readings.water_level ? "OK" : "LOW", readings.nutrient_level ? "OK" : "LOW", readings.mix_level ? "OK" : "LOW");
+  Serial.printf("Air Temp: %.1f°C | Humidity: %.1f%%\n", readings.temperature, readings.humidity);
+  Serial.printf("Water pH: %.2f | TDS: %.2f ppm\n", readings.ph, readings.tds);
+  Serial.printf("pH Sensor Temp: %.2f°C\n", readings.ph_temp);
+}
+
+void sendToCloud() {
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();
+    if (WiFi.status() != WL_CONNECTED) return;
+  }
+
+  ThingSpeak.setField(1, readings.temperature);
+  ThingSpeak.setField(2, readings.humidity);
+  ThingSpeak.setField(3, readings.ph);
+  ThingSpeak.setField(4, readings.tds);
+  ThingSpeak.setField(5, readings.water_level ? 1 : 0);
+  ThingSpeak.setField(6, readings.nutrient_level ? 1 : 0);
+  ThingSpeak.setField(7, readings.mix_level ? 1 : 0);
+  ThingSpeak.setField(8, readings.ph_temp);
+
+  int status = ThingSpeak.writeFields(config.thingspeak_channel, config.thingspeak_api_key);
+  Serial.printf("ThingSpeak Update: %s\n", status == 200 ? "Success" : "Failed");
+}
+
+void showTips() {
+  Serial.println("\nHydroponics Tips: Maintain pH between 5.5 and 6.5. Clean sensors monthly.");
+}
+
+void sendSMSAlert(String tankName) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String url = "http:// 192.168.184.52:5000/send-sms?tank=" + tankName;
+    http.begin(url);
+    int httpCode = http.GET();
+    String payload = http.getString();
+    Serial.println("SMS Response: " + payload);
+    http.end();
+  }
+}
+
+void sendAlertsIfNeeded() {
+  if (!readings.water_level) sendSMSAlert("Water");
+  if (!readings.nutrient_level) sendSMSAlert("Nutrient");
+  if (!readings.mix_level) sendSMSAlert("Mix");
+}
+
+void loadConfig() {
+  prefs.begin("hydroponics", true);
+  prefs.getBytes("config", &config, sizeof(config));
+  prefs.end();
+}
+
+void connectWiFi() {
+  Serial.printf("Connecting to %s...", config.wifi_ssid);
+  WiFi.begin(config.wifi_ssid, config.wifi_password);
+  for (int i = 0; i < 15; i++) {
+    if (WiFi.status() == WL_CONNECTED) break;
+    delay(1000); Serial.print(".");
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\nConnected! IP: %s\n", WiFi.localIP().toString().c_str());
+  } else {
+    Serial.println("\nWiFi Connection Failed");
+  }
+}
+
+String getSensorDataHTML() {
+  String data = "<p><strong>Temperature:</strong> " + String(readings.temperature, 1) + " °C</p>";
+  data += "<p><strong>Humidity:</strong> " + String(readings.humidity, 1) + " %</p>";
+  data += "<p><strong>pH:</strong> " + String(readings.ph, 2) + "</p>";
+  data += "<p><strong>TDS:</strong> " + String(readings.tds, 1) + " ppm</p>";
+  data += "<p><strong>Water Level:</strong> " + String(readings.water_level ? "OK" : "LOW") + "</p>";
+  data += "<p><strong>Nutrient Level:</strong> " + String(readings.nutrient_level ? "OK" : "LOW") + "</p>";
+  data += "<p><strong>Mixture Level:</strong> " + String(readings.mix_level ? "OK" : "LOW") + "</p>";
+  return data;
+}
+
+String generateWebPage() {
+  String sensorData = getSensorDataHTML();
+  String html = R"rawliteral(
+    <!DOCTYPE html><html><head>
+    <title>ESP32 Hydroponics Control</title>
+    <style>
+      body { font-family: Arial; text-align: center; background-color: skyblue; font-size: 35px;margin-top:50px; }
+      .button { background-color: #4CAF50; color: white; padding: 10px 20px; margin: 10px; border-radius: 10px; text-decoration: none; display: inline-block;text-align: center }
+      .off { background-color: #f44336; }
+      .card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; width: 700px; margin: auto;border-color:yellow; }
+      .myH1{font-size:60px;}
+    </style>
+    <script>
+      function fetchData() {
+        fetch("/data").then(res => res.text()).then(data => {
+          document.getElementById("sensorData").innerHTML = data;
+        });
+      }
+      setInterval(fetchData, 3000);
+    </script>
+    </head><body>
+    <h1 class="myH1">HYDROPONICS DASHBOARD</h1>
+    <div class='card'>
+      <h2>Control Pumps</h2>
+      <p>  Water Pump: <a class='button' href='/water/on'>ON</a><a class='button off' href='/water/off'>OFF</a></p>
+      <p>Nutrient Pump: <a class='button' href='/nutrient/on'>ON</a><a class='button off' href='/nutrient/off'>OFF</a></p>
+      <p>Mixture Pump: <a class='button' href='/mix/on'>ON</a><a class='button off' href='/mix/off'>OFF</a></p>
+    </div>
+    <div class='card'><h2>Sensor Data</h2><div id='sensorData'>)rawliteral" + sensorData + "</div></div></body></html>";
+  return html;
+}
+
+void setupWebServer() {
+  server.on("/", []() { server.send(200, "text/html", generateWebPage()); });
+  server.on("/data", []() { server.send(200, "text/html", getSensorDataHTML()); });
+  server.on("/water/on", []() { digitalWrite(WATER_PUMP_RELAY, HIGH); server.send(200, "text/html", generateWebPage()); });
+  server.on("/water/off", []() { digitalWrite(WATER_PUMP_RELAY, LOW); server.send(200, "text/html", generateWebPage()); });
+  server.on("/nutrient/on", []() { digitalWrite(NUTRIENT_PUMP_RELAY, HIGH); server.send(200, "text/html", generateWebPage()); });
+  server.on("/nutrient/off", []() { digitalWrite(NUTRIENT_PUMP_RELAY, LOW); server.send(200, "text/html", generateWebPage()); });
+  server.on("/mix/on", []() { digitalWrite(MIX_PUMP_RELAY, HIGH); server.send(200, "text/html", generateWebPage()); });
+  server.on("/mix/off", []() { digitalWrite(MIX_PUMP_RELAY, LOW); server.send(200, "text/html", generateWebPage()); });
+  server.begin();
+}
