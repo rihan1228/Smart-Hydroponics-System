@@ -142,3 +142,17 @@ When Mix Tank Full → Mix Pump ON →
 Log & Send to Cloud → Serve Web Dashboard →
 Trigger SMS Alerts if Needed
 
+
+
+
+
+✅ Advantages
+Efficient Resource Management: The use of water level sensors ensures that each tank maintains optimal levels, minimizing waste and preventing overflow.
+
+Automated Nutrient Control: With the pH sensor, the system can automatically adjust the acidity or alkalinity by adding water or nutrients, promoting healthy plant growth.
+
+Environmental Monitoring: The DHT sensor adds another layer of control by tracking temperature and humidity, which are crucial for plant development.
+
+Modular Setup: Having separate tanks allows for better mixing and maintenance, as each solution is handled independently before delivery to the plants.
+
+Scalability: Relays and pumps make the system adaptable for larger setups by integrating more chambers or sensors.
