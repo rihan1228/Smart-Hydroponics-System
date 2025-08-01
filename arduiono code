@@ -6,7 +6,7 @@
 #include <WebServer.h>
 #include <HTTPClient.h>
 
-// 🌡️ DHT Sensor Setup
+// 🌡DHT Sensor Setup
 #define DHTPIN 27           // Pin connected to DHT sensor for temperature and humidity
 #define DHTTYPE DHT11       // Type of DHT sensor used (DHT11)
 
