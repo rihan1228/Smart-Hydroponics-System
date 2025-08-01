@@ -147,7 +147,8 @@ Trigger SMS Alerts if Needed
 
 
 ✅ Advantages
-Efficient Resource Management: The use of water level sensors ensures that each tank maintains optimal levels, minimizing waste and preventing overflow.
+Efficient Resource Management: 
+The use of water level sensors ensures that each tank maintains optimal levels, minimizing waste and preventing overflow.
 
 Automated Nutrient Control: With the pH sensor, the system can automatically adjust the acidity or alkalinity by adding water or nutrients, promoting healthy plant growth.
 
