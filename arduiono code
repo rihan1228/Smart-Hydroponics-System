@@ -150,7 +150,7 @@ void updateIndicators() {
   digitalWrite(MIX_LED, !readings.mix_level);
 }
 
-void controlPumps() {
+void controlPumps() {                                         //Check if water or nutrient levels are low
   if (!readings.water_level || !readings.nutrient_level) {
     Serial.println("Step 5: Please refill water and/or nutrient tank.");
     return;
@@ -182,19 +182,19 @@ void logData() {
   Serial.printf("pH Sensor Temp: %.2f°C\n", readings.ph_temp);
 }
 
-void sendToCloud() {
-  if (WiFi.status() != WL_CONNECTED) {
+void sendToCloud() {                                                   //send sensor data to the cloud (ThingSpeak platform)
+  if (WiFi.status() != WL_CONNECTED) {                                 // Check WiFi connection status
     connectWiFi();
-    if (WiFi.status() != WL_CONNECTED) return;
+    if (WiFi.status() != WL_CONNECTED) return;  // Exit if not connected
   }
 
-  ThingSpeak.setField(1, readings.temperature);
-  ThingSpeak.setField(2, readings.humidity);
-  ThingSpeak.setField(3, readings.ph);
-  ThingSpeak.setField(4, readings.tds);
-  ThingSpeak.setField(5, readings.water_level ? 1 : 0);
-  ThingSpeak.setField(6, readings.nutrient_level ? 1 : 0);
-  ThingSpeak.setField(7, readings.mix_level ? 1 : 0);
+  ThingSpeak.setField(1, readings.temperature);                             //Temperature from DHT sensor
+  ThingSpeak.setField(2, readings.humidity);                                //Humidity from DHT sensor
+  ThingSpeak.setField(3, readings.ph);                                      //pH value from pH sensor
+  ThingSpeak.setField(4, readings.tds);                                    //TDS (Total Dissolved Solids) value
+  ThingSpeak.setField(5, readings.water_level ? 1 : 0);                    // Water tank level status (1 = full, 0 = empty)
+  ThingSpeak.setField(6, readings.nutrient_level ? 1 : 0);                //Nutrient tank level status (1 = full, 0 = empty)
+  ThingSpeak.setField(7, readings.mix_level ? 1 : 0);                     //Mixture tank level status (1 = full, 0 = empty)
   ThingSpeak.setField(8, readings.ph_temp);
 
   int status = ThingSpeak.writeFields(config.thingspeak_channel, config.thingspeak_api_key);
