@@ -147,6 +147,9 @@ Trigger SMS Alerts if Needed
 
 
 ✅ Advantages
+
+
+
 Efficient Resource Management: 
 The use of water level sensors ensures that each tank maintains optimal levels, minimizing waste and preventing overflow.
 
@@ -157,3 +160,21 @@ Environmental Monitoring: The DHT sensor adds another layer of control by tracki
 Modular Setup: Having separate tanks allows for better mixing and maintenance, as each solution is handled independently before delivery to the plants.
 
 Scalability: Relays and pumps make the system adaptable for larger setups by integrating more chambers or sensors.
+
+
+
+
+
+⚠️ Disadvantages
+
+
+
+Complex Circuitry: Managing multiple sensors and relays requires careful circuit design and programming, which might be challenging for beginners.
+
+High Initial Cost: Sensors, pumps, relays, and controllers can make the setup expensive upfront compared to simpler systems.
+
+Maintenance Demand: Regular calibration of sensors, cleaning of tanks, and relay checks are necessary to keep the system accurate and reliable.
+
+Power Dependency: Since everything runs on electricity, power outages can disrupt operations unless backup systems are in place.
+
+Error Sensitivity: A malfunction in any sensor (e.g., faulty pH reading) could lead to improper nutrient mixing, potentially affecting plant health.
