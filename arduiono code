@@ -31,8 +31,9 @@
 #define PH_TEMP_SENSOR 33    // Pin reading temperature used in pH calculations
 
 
-#define SENSOR_READ_DELAY 20
-#define UPDATE_INTERVAL 20000
+#define SENSOR_READ_DELAY 20       // Delay (in milliseconds) between individual sensor readings for stability
+#define UPDATE_INTERVAL 20000      // Interval (in milliseconds) for system-wide updates (e.g., pump control, data logging)
+
 
 DHT dht(DHTPIN, DHTTYPE);
 WiFiClient client;
