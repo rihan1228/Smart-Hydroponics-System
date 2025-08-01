@@ -61,7 +61,9 @@ White	GPIO 4	Nutrient tank LOW
 Blue	GPIO 15	Water tank LOW
 
 🔄 Working Principle
+
 🟢 Startup (setup())
+
 Initializes GPIOs, sensors, Wi-Fi, and ThingSpeak.
 
 Reads saved Wi-Fi and config from flash (Preferences).
@@ -102,6 +104,7 @@ SMS Alert
 Sends alert via REST API if any tank is low.
 
 🌐 Web Dashboard Features
+
 Served at ESP32's IP, this dashboard allows:
 
 Manual pump ON/OFF control (via /pump_name/on and /off)
@@ -109,6 +112,7 @@ Manual pump ON/OFF control (via /pump_name/on and /off)
 Live sensor data refresh every 3 seconds via JavaScript and /data
 
 ☁️ ThingSpeak Integration
+
 Uses field mapping:
 
 yaml
@@ -127,11 +131,12 @@ Helps you view trends and set triggers.
 🛠️ Additional Notes
 Calibration factors (ph_calibration, tds_calibration) help tune analog readings.
 
-You’re averaging analog reads over 10 samples to reduce noise.
+averaging analog reads over 10 samples to reduce noise.
 
 sendSMSAlert() sends a GET request to a local server at 192.168.184.52:5000 to trigger alerts (you must run a Flask/Python backend there).
 
 🔁 Full System Operation Flow
+
 pgsql
 Copy
 Edit
