@@ -1,1 +1,129 @@
-hi
+Sure! Here's a clean, **point-by-point documentation** of each component in your **Smart IoT-Based Hydroponics System**, formatted for GitHub `README.md` usage.
+
+---
+
+# 📦 Components List – Smart IoT-Based Hydroponics System
+
+Below are the detailed components used in this hydroponics automation project with purpose, specifications, approximate price, and purchase links.
+
+---
+
+### 1. 🧠 **ESP32 Development Board (38-Pin)**
+
+* **Purpose**: Central controller for sensors, pumps, relays, Wi-Fi, and cloud updates.
+* **Features**: Dual-core, Wi-Fi, Bluetooth, analog/digital I/O, low power.
+* **Approx. Price**: ₹300 – ₹600
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=esp32+devkit)
+
+---
+
+### 2. 🌡️ **DHT11 Temperature and Humidity Sensor Module**
+
+* **Purpose**: Monitors air temperature and humidity in the environment.
+* **Pins**: VCC, GND, DATA (connected to GPIO 27)
+* **Approx. Price**: ₹60 – ₹150
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=dht11+sensor)
+
+---
+
+### 3. 🔋 **TP4056 Li-Ion Battery Charging Module**
+
+* **Purpose**: Charges 3.7V Li-Ion battery and powers ESP32.
+* **Features**: Overcharge and discharge protection, Micro-USB input.
+* **Approx. Price**: ₹15 – ₹50
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=tp4056+charging+module)
+
+---
+
+### 4. 🔌 **3.7V Li-Ion Battery (2000 mAh or higher)**
+
+* **Purpose**: Battery backup to power the whole system when no USB.
+* **Features**: Rechargeable, high capacity, compact.
+* **Approx. Price**: ₹200 – ₹500
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=3.7v+li-ion+battery)
+
+---
+
+### 5. 💧 **Float Water Level Sensors (x3)**
+
+* **Purpose**: Detects LOW level in water tank, nutrient tank, and mix tank.
+* **Connections**: Digital input to GPIO 12, 13, and 14
+* **Approx. Price**: ₹100 – ₹150 each
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=water+level+sensor+float+switch)
+
+---
+
+### 6. ⚗️ **Analog pH Sensor Module**
+
+* **Purpose**: Measures acidity/alkalinity of the nutrient solution.
+* **Analog Pin**: GPIO 34
+* **Approx. Price**: ₹800 – ₹1200
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=ph+sensor+module+arduino)
+
+---
+
+### 7. ⚡ **TDS (Total Dissolved Solids) Sensor**
+
+* **Purpose**: Measures nutrient concentration in water (EC).
+* **Analog Pin**: GPIO 35
+* **Approx. Price**: ₹700 – ₹1200
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=tds+sensor+module+arduino)
+
+---
+
+### 8. 🌡️ **Temperature Sensor (From pH Sensor Board)**
+
+* **Purpose**: Reads temperature of solution for calibration (ATC).
+* **Analog Pin**: GPIO 33
+* **Note**: Comes with pH sensor module kit.
+
+---
+
+### 9. 🧃 **5V DC Water Pumps (x3)**
+
+* **Purpose**: Pump liquids from tanks:
+
+  * Water pump (GPIO 18)
+  * Nutrient pump (GPIO 19)
+  * Mix pump (GPIO 21)
+* **Voltage**: 5V DC
+* **Approx. Price**: ₹300 – ₹500 each
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=5v+dc+mini+water+pump)
+
+---
+
+### 10. 🔁 **Relay Module 2/4 Channel (x2)**
+
+* **Purpose**: Controls DC pumps via digital GPIOs.
+* **Input Voltage**: 5V
+* **Control Pins**: GPIO 18, 19, 21
+* **Approx. Price**: ₹120 – ₹200 per module
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=relay+module+5v+arduino)
+
+---
+
+### 11. 💡 **LED Indicators (Red, White, Blue)**
+
+* **Purpose**: Indicate LOW tank levels.
+
+  * Blue (Water Tank) – GPIO 15
+  * White (Nutrient Tank) – GPIO 4
+  * Red (Mix Tank) – GPIO 2
+* **Approx. Price**: ₹5 – ₹10 each
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=led+5mm+arduino)
+
+---
+
+### 12. 🧪 **Resistors, Jumper Wires, Breadboard**
+
+* **Purpose**: Basic prototyping and wiring.
+* **Approx. Price**: ₹100 – ₹300 bundle
+* **Buy Link**: [Amazon India](https://www.amazon.in/s?k=arduino+starter+kit)
+
+---
+
+## 🧾 Total Estimated Cost: ₹2500 – ₹4000 (depending on brands and quantity)
+
+---
+
+Would you like this in **Markdown file format (`README.md`)** to directly copy to GitHub?
