@@ -109,29 +109,29 @@ void updateSystem() {
   sendAlertsIfNeeded();
 }
 
-void readSensors() {
-  readings.water_level = digitalRead(WATER_TANK_LEVEL_SENSOR);
-  readings.nutrient_level = digitalRead(NUTRIENT_TANK_LEVEL_SENSOR);
-  readings.mix_level = digitalRead(MIX_TANK_LEVEL_SENSOR);
+void readSensors() {                                                                        //Sensors redings collection block
+  readings.water_level = digitalRead(WATER_TANK_LEVEL_SENSOR);                                    //Water tank sensor readings
+  readings.nutrient_level = digitalRead(NUTRIENT_TANK_LEVEL_SENSOR);                              //Nutrient tank sensor readings
+  readings.mix_level = digitalRead(MIX_TANK_LEVEL_SENSOR);                                        //Mix tank sensor readings
 
-  float t = dht.readTemperature();
+  float t = dht.readTemperature();                                                                //Humidity sensor readings
   float h = dht.readHumidity();
   if (!isnan(t)) readings.temperature = t;
   if (!isnan(h)) readings.humidity = h;
 
-  int rawPH = readAverageAnalog(PH_SENSOR);
-  float voltagePH = rawPH * (3.3 / 4095.0);
+  int rawPH = readAverageAnalog(PH_SENSOR);                                                       //Ph sensor readings
+  float voltagePH = rawPH * (3.3 / 4095.0);                                                       //PH calculation
   float pH = 7 + ((2.5 - voltagePH) / 0.18);
   readings.ph = constrain(pH * config.ph_calibration, 0, 14);
 
-  int rawTemp = readAverageAnalog(PH_TEMP_SENSOR);
+  int rawTemp = readAverageAnalog(PH_TEMP_SENSOR);                                                // Temp sensor readings
   float voltageTemp = rawTemp * (3.3 / 4095.0);
-  readings.ph_temp = (voltageTemp - 0.5) * 100.0;
+  readings.ph_temp = (voltageTemp - 0.5) * 100.0;                                                 // Temp calculation
 
-  int rawTDS = readAverageAnalog(TDS_SENSOR);
-  float voltageTDS = rawTDS * (3.3 / 4095.0);
+  int rawTDS = readAverageAnalog(TDS_SENSOR);                                                     // TDS sensor readings 
+  float voltageTDS = rawTDS * (3.3 / 4095.0);                                                     
   float ec = voltageTDS * 133.33;
-  float tds = ec * 0.5;
+  float tds = ec * 0.5;                                                                          //TDS sensor calculation
   readings.tds = tds * config.tds_calibration;
 }
 
