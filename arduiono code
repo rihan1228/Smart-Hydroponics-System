@@ -6,20 +6,30 @@
 #include <WebServer.h>
 #include <HTTPClient.h>
 
-#define DHTPIN 27
-#define DHTTYPE DHT11
-#define WATER_TANK_LEVEL_SENSOR 12
-#define NUTRIENT_TANK_LEVEL_SENSOR 13
-#define MIX_TANK_LEVEL_SENSOR 14
-#define WATER_LED 15
-#define NUTRIENT_LED 4
-#define MIX_LED 2
-#define WATER_PUMP_RELAY 18
-#define NUTRIENT_PUMP_RELAY 19
-#define MIX_PUMP_RELAY 21
-#define PH_SENSOR 34
-#define TDS_SENSOR 35
-#define PH_TEMP_SENSOR 33
+// 🌡️ DHT Sensor Setup
+#define DHTPIN 27           // Pin connected to DHT sensor for temperature and humidity
+#define DHTTYPE DHT11       // Type of DHT sensor used (DHT11)
+
+// 💧 Water Level Sensor Pins
+#define WATER_TANK_LEVEL_SENSOR 12     // Water level sensor for the water tank
+#define NUTRIENT_TANK_LEVEL_SENSOR 13  // Water level sensor for the nutrient tank
+#define MIX_TANK_LEVEL_SENSOR 14       // Water level sensor for the mixture tank
+
+// 🔆 LED Indicators
+#define WATER_LED 15        // LED indicating status of water tank (e.g., low level)
+#define NUTRIENT_LED 4      // LED indicating status of nutrient tank
+#define MIX_LED 2           // LED indicating status of mixture tank
+
+// 🔄 Pump Control Relays
+#define WATER_PUMP_RELAY 18       // Relay controlling pump for water tank
+#define NUTRIENT_PUMP_RELAY 19    // Relay controlling pump for nutrient tank
+#define MIX_PUMP_RELAY 21         // Relay controlling pump for mixture tank
+
+// 🧪 Sensor Pins for Liquid Analysis
+#define PH_SENSOR 34         // Analog pin reading data from pH sensor
+#define TDS_SENSOR 35        // Analog pin reading data from TDS (Total Dissolved Solids) sensor
+#define PH_TEMP_SENSOR 33    // Pin reading temperature used in pH calculations
+
 
 #define SENSOR_READ_DELAY 20
 #define UPDATE_INTERVAL 20000
