@@ -5,6 +5,14 @@ A smart hydroponics system is a soil-free farming setup that uses sensors, autom
 
 
 
+
+
+
+
+hydroponics system that consists of three chambers: one for storing water, one for storing a mixture of water and nutrients, and another for holding concentrated nutrients. Each chamber is equipped with a water level sensor to monitor the liquid levels. In the nutrient mixture chamber, a pH sensor is used to measure the acidity or alkalinity of the solution, and a DHT sensor is included to track environmental parameters like temperature and humidity. Each chamber has a dedicated pump, and all three pumps are connected to individual relays, allowing the circuit to manage fluid flow and nutrient balance automatically based on sensor input.
+
+
+
 This project automates the nutrient and water delivery to plants grown hydroponically. It uses:
 
 Sensors to monitor tank levels, temperature, humidity, pH, and TDS.
